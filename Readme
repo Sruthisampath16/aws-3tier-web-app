@@ -1,8 +1,8 @@
-3-Tier Web Application on AWS
+# 3-Tier Web Application on AWS
 
 A classic 3-tier architecture (web, application, database) deployed on AWS with high availability across two Availability Zones — using an Application Load Balancer, Auto Scaling Group, and isolated subnet tiers.
 
-Architecture
+## Architecture
 
 Internet
    → Application Load Balancer (public subnets, 2 AZs)
@@ -10,20 +10,20 @@ Internet
    → App tier (private subnets, 2 AZs)
    → RDS database (private subnets, 2 AZs, Multi-AZ)
 
-Design
+## Design
 
 
-Networking: Custom VPC (10.0.0.0/16) with 6 subnets across 2 AZs — 2 public (web tier), 2 private (app tier), 2 private (DB tier)
-Web tier: Auto Scaling Group (min 2, max 4) behind an internet-facing Application Load Balancer, health-checked on /
-Security: Security groups scoped tightly — web tier only accepts traffic from the ALB, not directly from the internet
-Availability: Every tier spans 2 Availability Zones for fault tolerance
+- **Networking** : Custom VPC (10.0.0.0/16) with 6 subnets across 2 AZs — 2 public (web tier), 2 private (app tier), 2 private (DB tier)
+- **Web tier**: Auto Scaling Group (min 2, max 4) behind an internet-facing Application Load Balancer, health-checked on /
+- **Security**: Security groups scoped tightly — web tier only accepts traffic from the ALB, not directly from the internet
+- **Availability**: Every tier spans 2 Availability Zones for fault tolerance
 
 
-Tools & services
+## Tools & services
 
 VPC · EC2 · Application Load Balancer · Auto Scaling Group · Launch Templates · IAM · CloudFormation · Route 53
 
-Repo contents
+## Repo contents
 
 ├── cloudformation/
 │   ├── 01-networking.yaml   # VPC, subnets, route tables
@@ -32,9 +32,11 @@ Repo contents
 │   └── web-tier-userdata.sh
 └── README.md
 
-Deploying
+## Deploying
 
-bash# 1. Deploy networking layer
+bash
+
+# 1. Deploy networking layer
 aws cloudformation create-stack \
   --stack-name 3tier-networking \
   --template-body file://cloudformation/01-networking.yaml
