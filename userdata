@@ -1,0 +1,21 @@
+#!/bin/bash
+# EC2 user data script - Web Tier
+# Installs and configures the web server on instance launch
+
+yum update -y
+yum install -y httpd
+systemctl start httpd
+systemctl enable httpd
+
+cat <<'EOF' > /var/www/html/index.html
+<!DOCTYPE html>
+<html>
+<head><title>3-Tier Web App - Web Tier</title></head>
+<body>
+  <h1>Web Tier - Instance Healthy</h1>
+  <p>Served by Auto Scaling Group behind Application Load Balancer</p>
+</body>
+</html>
+EOF
+
+echo "Web tier setup complete" >> /var/log/user-data.log

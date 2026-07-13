@@ -1,0 +1,56 @@
+3-Tier Web Application on AWS
+
+A classic 3-tier architecture (web, application, database) deployed on AWS with high availability across two Availability Zones — using an Application Load Balancer, Auto Scaling Group, and isolated subnet tiers.
+
+Architecture
+
+Internet
+   → Application Load Balancer (public subnets, 2 AZs)
+   → Auto Scaling Group of EC2 instances (web tier, public subnets)
+   → App tier (private subnets, 2 AZs)
+   → RDS database (private subnets, 2 AZs, Multi-AZ)
+
+Design
+
+
+Networking: Custom VPC (10.0.0.0/16) with 6 subnets across 2 AZs — 2 public (web tier), 2 private (app tier), 2 private (DB tier)
+Web tier: Auto Scaling Group (min 2, max 4) behind an internet-facing Application Load Balancer, health-checked on /
+Security: Security groups scoped tightly — web tier only accepts traffic from the ALB, not directly from the internet
+Availability: Every tier spans 2 Availability Zones for fault tolerance
+
+
+Tools & services
+
+VPC · EC2 · Application Load Balancer · Auto Scaling Group · Launch Templates · IAM · CloudFormation · Route 53
+
+Repo contents
+
+├── cloudformation/
+│   ├── 01-networking.yaml   # VPC, subnets, route tables
+│   └── 02-web-tier.yaml     # ALB, ASG, Launch Template
+├── scripts/
+│   └── web-tier-userdata.sh
+└── README.md
+
+Deploying
+
+bash# 1. Deploy networking layer
+aws cloudformation create-stack \
+  --stack-name 3tier-networking \
+  --template-body file://cloudformation/01-networking.yaml
+
+# 2. Deploy web tier (pass outputs from step 1 as parameters)
+aws cloudformation create-stack \
+  --stack-name 3tier-web \
+  --template-body file://cloudformation/02-web-tier.yaml \
+  --parameters ParameterKey=VpcId,ParameterValue=<vpc-id> \
+               ParameterKey=PublicSubnetIds,ParameterValue=<subnet-a>\\,<subnet-b> \
+               ParameterKey=AmiId,ParameterValue=<ami-id>
+
+What I contributed
+
+Contributed to the VPC/subnet design, Auto Scaling Group configuration, and CloudWatch-based health monitoring for the web tier as part of a team project at Xortican Technologies.
+
+Notes
+
+Rebuilt and documented as a portfolio piece based on hands-on architecture work. The app and database tiers (private subnets) are provisioned but application/DB layer templates are a work in progress — networking and web tier are complete and deployable as-is.
